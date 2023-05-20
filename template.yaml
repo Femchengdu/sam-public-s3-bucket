@@ -24,35 +24,8 @@ Resources:
       WebsiteConfiguration:
         IndexDocument: index.html
         ErrorDocument: 404.html
-      PublicAccessBlockConfiguration: # The following makes the S3 bucket public for reading and writing.
-        BlockPublicAcls: false
-        IgnorePublicAcls: false
-        BlockPublicPolicy: false
-        RestrictPublicBuckets: false
-      CorsConfiguration:
-        CorsRules:
-          - AllowedOrigins:
-              - "*"
-            AllowedHeaders:
-              - "*"
-            AllowedMethods:
-              - GET
-              - PUT
-              - POST
-              - DELETE
-              - HEAD
-            MaxAge: 3000
     DeletionPolicy: Delete # Delete when stack is destroyed
-  WWWBucket:
-    Type: AWS::S3::Bucket
-    Properties:
-      BucketName: !Sub
-        - www.${Domain}
-        - Domain: !Ref RootDomainName
-      # AccessControl: BucketOwnerFullControl
-      WebsiteConfiguration:
-        RedirectAllRequestsTo:
-          HostName: !Ref ResumeS3Bucket
+
   BucketPolicy:
     Type: "AWS::S3::BucketPolicy"
     Properties:
@@ -65,21 +38,11 @@ Resources:
             Principal: "*"
             Action:
               - s3:GetObject
-              - s3:PutObject
             Resource: !Join
               - ""
               - - "arn:aws:s3:::"
                 - !Ref ResumeS3Bucket
                 - /*
-          - Sid: PublicListBuckets
-            Effect: Allow
-            Principal: "*"
-            Action:
-              - s3:ListBucket
-            Resource: !Join
-              - ""
-              - - "arn:aws:s3:::"
-                - !Ref ResumeS3Bucket
       Bucket: !Ref ResumeS3Bucket
   HelloWorldFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
@@ -113,11 +76,6 @@ Outputs:
     Description: URL for website hosted on S3
     Value: !GetAtt
       - ResumeS3Bucket
-      - WebsiteURL
-  WWWBucketWebsiteURL:
-    Description: URL for the www subdomain website hosted on S3
-    Value: !GetAtt
-      - WWWBucket
       - WebsiteURL
   ResumeS3BucketSecureURL:
     Description: Name of S3 bucket to hold website content
