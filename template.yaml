@@ -20,10 +20,10 @@ Resources:
   ResumeS3Bucket:
     Type: "AWS::S3::Bucket"
     Properties:
-      BucketName: !Ref RootDomainName
       WebsiteConfiguration:
         IndexDocument: index.html
         ErrorDocument: 404.html
+      BucketName: !Ref RootDomainName
     DeletionPolicy: Delete # Delete when stack is destroyed
 
   BucketPolicy:
@@ -44,6 +44,27 @@ Resources:
                 - !Ref ResumeS3Bucket
                 - /*
       Bucket: !Ref ResumeS3Bucket
+
+  MyDistribution:
+    Type: "AWS::CloudFront::Distribution"
+    Properties:
+      DistributionConfig:
+        DefaultCacheBehavior:
+          ViewerProtocolPolicy: allow-all
+          TargetOriginId: sam-aj-tech.click.s3-website-eu-west-1.amazonaws.com
+          DefaultTTL: 0
+          MinTTL: 0
+          MaxTTL: 0
+          ForwardedValues:
+            QueryString: false
+        Origins:
+          - DomainName: sam-aj-tech.click.s3-website-eu-west-1.amazonaws.com
+            Id: sam-aj-tech.click.s3-website-eu-west-1.amazonaws.com
+            CustomOriginConfig:
+              OriginProtocolPolicy: match-viewer
+        Enabled: true
+        DefaultRootObject: index.html
+
   HelloWorldFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
@@ -66,17 +87,15 @@ Outputs:
   HelloWorldApi:
     Description: "API Gateway endpoint URL for Prod stage for Hello World function"
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/"
-  HelloWorldFunction:
-    Description: "Hello World Lambda Function ARN"
-    Value: !GetAtt HelloWorldFunction.Arn
-  HelloWorldFunctionIamRole:
-    Description: "Implicit IAM Role created for Hello World function"
-    Value: !GetAtt HelloWorldFunctionRole.Arn
-  WebsiteURL:
-    Description: URL for website hosted on S3
-    Value: !GetAtt
-      - ResumeS3Bucket
-      - WebsiteURL
+
+  # HelloWorldFunction:
+  #   Description: "Hello World Lambda Function ARN"
+  #   Value: !GetAtt HelloWorldFunction.Arn
+
+  # HelloWorldFunctionIamRole:
+  #   Description: "Implicit IAM Role created for Hello World function"
+  #   Value: !GetAtt HelloWorldFunctionRole.Arns
+
   ResumeS3BucketSecureURL:
     Description: Name of S3 bucket to hold website content
     Value: !Join
