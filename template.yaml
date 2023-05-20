@@ -5,6 +5,11 @@ Description: >
 
   Sample SAM Template for resume-challenge-s3
 
+Parameters:
+  RootDomainName:
+    Type: String
+    Default: sam-aj-tech.click
+
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
   Function:
@@ -15,7 +20,7 @@ Resources:
   ResumeS3Bucket:
     Type: "AWS::S3::Bucket"
     Properties:
-      BucketName: my-resume-website-sam-aj-tech
+      BucketName: !Ref RootDomainName
       WebsiteConfiguration:
         IndexDocument: index.html
         ErrorDocument: 404.html
@@ -38,6 +43,16 @@ Resources:
               - HEAD
             MaxAge: 3000
     DeletionPolicy: Delete # Delete when stack is destroyed
+  WWWBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub
+        - www.${Domain}
+        - Domain: !Ref RootDomainName
+      # AccessControl: BucketOwnerFullControl
+      WebsiteConfiguration:
+        RedirectAllRequestsTo:
+          HostName: !Ref ResumeS3Bucket
   BucketPolicy:
     Type: "AWS::S3::BucketPolicy"
     Properties:
@@ -66,7 +81,6 @@ Resources:
               - - "arn:aws:s3:::"
                 - !Ref ResumeS3Bucket
       Bucket: !Ref ResumeS3Bucket
-
   HelloWorldFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
@@ -99,6 +113,11 @@ Outputs:
     Description: URL for website hosted on S3
     Value: !GetAtt
       - ResumeS3Bucket
+      - WebsiteURL
+  WWWBucketWebsiteURL:
+    Description: URL for the www subdomain website hosted on S3
+    Value: !GetAtt
+      - WWWBucket
       - WebsiteURL
   ResumeS3BucketSecureURL:
     Description: Name of S3 bucket to hold website content
