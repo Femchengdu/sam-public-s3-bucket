@@ -18,7 +18,7 @@ Resources:
       BucketName: my-resume-website-sam-aj-tech
       WebsiteConfiguration:
         IndexDocument: index.html
-        ErrorDocument: error.html
+        ErrorDocument: 404.html
       PublicAccessBlockConfiguration: # The following makes the S3 bucket public for reading and writing.
         BlockPublicAcls: false
         IgnorePublicAcls: false
