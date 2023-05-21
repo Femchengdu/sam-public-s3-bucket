@@ -74,6 +74,8 @@ Resources:
         ViewerCertificate:
           AcmCertificateArn: arn:aws:acm:us-east-1:673854605700:certificate/ca357a4a-f18c-4fbd-9faa-9dffbd7f7601 # Using !Ref MyCertificate returns a value for eu-west-1
           SslSupportMethod: sni-only
+        Aliases:
+          - !Ref RootDomainName
         DefaultCacheBehavior:
           ViewerProtocolPolicy: redirect-to-https
           TargetOriginId: samuel-ajayi.click.s3-website-eu-west-1.amazonaws.com
@@ -86,7 +88,7 @@ Resources:
           - DomainName: samuel-ajayi.click.s3-website-eu-west-1.amazonaws.com
             Id: samuel-ajayi.click.s3-website-eu-west-1.amazonaws.com
             CustomOriginConfig:
-              OriginProtocolPolicy: match-viewer
+              OriginProtocolPolicy: http-only # This is needed to avoid errors linking couldfront to S3 bucket
         Enabled: true
         DefaultRootObject: index.html
 
