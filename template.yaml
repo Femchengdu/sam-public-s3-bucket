@@ -8,7 +8,7 @@ Description: >
 Parameters:
   RootDomainName:
     Type: String
-    Default: sam-aj-tech.click
+    Default: samuel-ajayi.click
 
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
@@ -24,6 +24,11 @@ Resources:
         IndexDocument: index.html
         ErrorDocument: 404.html
       BucketName: !Ref RootDomainName
+      PublicAccessBlockConfiguration: # The following makes the S3 bucket public for reading and writing.
+        BlockPublicAcls: false
+        IgnorePublicAcls: false
+        BlockPublicPolicy: false
+        RestrictPublicBuckets: false
     DeletionPolicy: Delete # Delete when stack is destroyed
 
   BucketPolicy:
@@ -45,21 +50,32 @@ Resources:
                 - /*
       Bucket: !Ref ResumeS3Bucket
 
+  MyRoute53Record:
+    Type: "AWS::Route53::RecordSetGroup"
+    Properties:
+      HostedZoneId: Z057248412IHITD2YIZ94 # Get me me from Route53
+      RecordSets:
+        - Name: !Ref RootDomainName
+          Type: A
+          AliasTarget:
+            HostedZoneId: Z2FDTNDATAQYW2 # This is always the hosted zone ID when you create an alias record that routes traffic to a CloudFront distribution
+            DNSName: !GetAtt MyDistribution.DomainName
+
   MyDistribution:
     Type: "AWS::CloudFront::Distribution"
     Properties:
       DistributionConfig:
         DefaultCacheBehavior:
           ViewerProtocolPolicy: allow-all
-          TargetOriginId: sam-aj-tech.click.s3-website-eu-west-1.amazonaws.com
+          TargetOriginId: samuel-ajayi.click.s3-website-eu-west-1.amazonaws.com
           DefaultTTL: 0
           MinTTL: 0
           MaxTTL: 0
           ForwardedValues:
             QueryString: false
         Origins:
-          - DomainName: sam-aj-tech.click.s3-website-eu-west-1.amazonaws.com
-            Id: sam-aj-tech.click.s3-website-eu-west-1.amazonaws.com
+          - DomainName: samuel-ajayi.click.s3-website-eu-west-1.amazonaws.com
+            Id: samuel-ajayi.click.s3-website-eu-west-1.amazonaws.com
             CustomOriginConfig:
               OriginProtocolPolicy: match-viewer
         Enabled: true
