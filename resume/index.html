@@ -191,6 +191,7 @@
 
 		<div id="ft">
 			<p>Samuel Ajayi &mdash; <a href="https://www.linkedin.com/in/samuel-ajayi-full-stack/">https://www.linkedin.com/in/samuel-ajayi-full-stack</a></p>
+			<p id="visitor-counter">Visitor counter</p>
 		</div><!--// footer -->
 
 	</div><!-- // inner -->
@@ -198,7 +199,17 @@
 
 </div><!--// doc -->
 <script>
-	console.log("Loaded the index file :👉");
+	(async () => {
+
+		const res2 = await fetch("https://35psb0ez46.execute-api.eu-west-1.amazonaws.com/Prod/hello")
+		console.log("Waitinng")
+		const json = await res2.json()
+		console.log(res2.status)
+		console.log("Loaded the index file :👉", json);
+		const visitorCounter = document.getElementById("visitor-counter")
+		visitorCounter.innerHTML = `<span>Visits :👉 ${json.count}<span>`
+
+	})()
 </script>
 
 </body>

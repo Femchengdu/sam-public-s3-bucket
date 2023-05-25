@@ -50,6 +50,18 @@ Resources:
                 - /*
       Bucket: !Ref ResumeS3Bucket
 
+  DynamoDBTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: resume-challenge
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: "ID"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "ID"
+          KeyType: "HASH"
+
   MyRoute53Record:
     Type: "AWS::Route53::RecordSetGroup"
     Properties:
