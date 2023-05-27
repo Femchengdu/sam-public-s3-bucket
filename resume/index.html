@@ -200,15 +200,42 @@
 </div><!--// doc -->
 <script>
 	(async () => {
+		try {
+			const baseUrl = "https://35psb0ez46.execute-api.eu-west-1.amazonaws.com/Prod"
+			const getUrl = `${baseUrl}/get`
+			const putUrl = `${baseUrl}/put`
+			
+			// Fetch the current visitor count
+			const response = await fetch(getUrl)
+			const json = await response.json()
+			console.log("Loaded the index file :👉", json);
 
-		const res2 = await fetch("https://35psb0ez46.execute-api.eu-west-1.amazonaws.com/Prod/get")
-		console.log("Waitinng")
-		const json = await res2.json()
-		console.log(res2.status)
-		console.log("Loaded the index file :👉", json);
-		const visitorCounter = document.getElementById("visitor-counter")
-		visitorCounter.innerHTML = `<span>Visits :👉 ${json.count}<span>`
+			// Set the page counter
+			const visitorCounter = document.getElementById("visitor-counter")
+			visitorCounter.innerHTML = `<span>Visits :👉 ${json.count}<span>`
 
+			// Update the database counter
+			const data = {
+				count: json.count + 1
+			} 
+			const options = {
+				method: "PUT",
+				headers: {
+					"Content-Type": "application/json",
+					"Accept": "*/*"
+				},
+				redirect: "follow",
+				referrerPolicy: "no-referrer", 
+				body: JSON.stringify(data)
+			}
+			// Update the count on the server
+			fetch(putUrl, options);
+
+		} catch (error) {
+			const visitorCounter = document.getElementById("visitor-counter")
+			visitorCounter.innerHTML = `<span>Visits :👉 0<span>`
+			console.log("Server errror :", error.message)
+		}
 	})()
 </script>
 
