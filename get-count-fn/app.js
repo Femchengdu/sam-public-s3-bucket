@@ -1,6 +1,10 @@
-// const axios = require('axios')
-// const url = 'http://checkip.amazonaws.com/';
+const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
+const { DynamoDBDocumentClient, GetCommand } = require("@aws-sdk/lib-dynamodb");
+// Setup
 let response;
+const tableName = "resume-challenge";
+const client = new DynamoDBClient({});
+const dynamo = DynamoDBDocumentClient.from(client);
 
 /**
  *
@@ -14,28 +18,50 @@ let response;
  * @returns {Object} object - API Gateway Lambda Proxy Output Format
  *
  */
-let visits = 0;
+
 exports.lambdaHandler = async (event, context) => {
+  // setup the response properties
+  let body;
+  let statusCode = 200;
+
+  const headers = {
+    "Content-Type": "application/json",
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "*",
+    "Access-Control-Allow-Headers": "*",
+  };
+
   try {
-    // const ret = await axios(url);
-    visits += 1;
-    response = {
-      statusCode: 200,
-      body: JSON.stringify({
-        count: visits,
-        // location: ret.data.trim()
-      }),
-      headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "*",
-        "Access-Control-Allow-Headers": "*",
-      },
-    };
+    switch (event.httpMethod) {
+      case "GET":
+        const dbRes = await dynamo.send(
+          new GetCommand({
+            TableName: tableName,
+            Key: {
+              ID: "Count",
+            },
+          })
+        );
+        const { ID, Val } = dbRes.Item;
+        console.log("The ID is :", ID);
+        body = { count: Val };
+        break;
+      default:
+        throw new Error(`Unsupported method: "${event.httpMethod}"`);
+    }
   } catch (err) {
-    console.log(err);
-    return err;
+    statusCode = 400;
+    console.log("the error is :", err);
+    body = err.message;
+  } finally {
+    body = JSON.stringify(body);
   }
+
+  response = {
+    statusCode,
+    body,
+    headers,
+  };
 
   return response;
 };
