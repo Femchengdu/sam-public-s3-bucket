@@ -118,6 +118,9 @@ Resources:
           Properties:
             Path: /get
             Method: get
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref DynamoDBTable
 
   PutCountFn:
     Type: AWS::Serverless::Function
@@ -132,7 +135,17 @@ Resources:
           Type: Api
           Properties:
             Path: /put
-            Method: get
+            Method: put
+        Options:
+          Type: Api
+          Properties:
+            Path: /put
+            Method: options
+            # Auth:
+            #   ApiKeyRequired: false
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref DynamoDBTable
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
@@ -140,7 +153,7 @@ Outputs:
   # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
   GetCountFnAPI:
     Description: "API Gateway endpoint URL for Prod stage for get count function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/get/"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/get"
 
   GetCountFn:
     Description: "Get count Lambda Function ARN"
@@ -152,7 +165,7 @@ Outputs:
 
   PutCountFnAPI:
     Description: "API Gateway endpoint URL for Prod stage for put count function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/put/"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/put"
 
   PutCountFn:
     Description: "Put count Lambda Function ARN"
