@@ -104,36 +104,63 @@ Resources:
         Enabled: true
         DefaultRootObject: index.html
 
-  HelloWorldFunction:
-    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+  GetCountFn:
+    Type: AWS::Serverless::Function
     Properties:
-      CodeUri: hello-world/
+      CodeUri: get-count-fn/
       Handler: app.lambdaHandler
       Runtime: nodejs16.x
       Architectures:
         - x86_64
       Events:
-        HelloWorld:
-          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+        ApiEvent:
+          Type: Api
           Properties:
-            Path: /hello
+            Path: /get
+            Method: get
+
+  PutCountFn:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: put-count-fn/
+      Handler: app.lambdaHandler
+      Runtime: nodejs16.x
+      Architectures:
+        - x86_64
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            Path: /put
             Method: get
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
   # Find out more about other implicit resources you can reference within SAM
   # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
-  HelloWorldApi:
-    Description: "API Gateway endpoint URL for Prod stage for Hello World function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/"
+  GetCountFnAPI:
+    Description: "API Gateway endpoint URL for Prod stage for get count function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/get/"
 
-  HelloWorldFunction:
-    Description: "Hello World Lambda Function ARN"
-    Value: !GetAtt HelloWorldFunction.Arn
+  GetCountFn:
+    Description: "Get count Lambda Function ARN"
+    Value: !GetAtt GetCountFn.Arn
 
-  HelloWorldFunctionIamRole:
-    Description: "Implicit IAM Role created for Hello World function"
-    Value: !GetAtt HelloWorldFunctionRole.Arn
+  GetCountFnIamRole:
+    Description: "Implicit IAM Role created for get count function"
+    Value: !GetAtt GetCountFnRole.Arn
+
+  PutCountFnAPI:
+    Description: "API Gateway endpoint URL for Prod stage for put count function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/put/"
+
+  PutCountFn:
+    Description: "Put count Lambda Function ARN"
+    Value: !GetAtt PutCountFn.Arn
+
+  PutCountFnIamRole:
+    Description: "Implicit IAM Role created for put count function"
+    Value: !GetAtt PutCountFnRole.Arn
 
   ResumeS3BucketSecureURL:
     Description: Name of S3 bucket to hold website content
